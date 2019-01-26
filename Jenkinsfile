@@ -28,69 +28,6 @@ node('master') {
         }
     }
 
-    stage('Validate configuration') {
-        try {
-
-            sh '''
- #!/bin/bash
- set +x
- bad_function=`grep -R System.exit | grep -v Jenkinsfile | awk -F ":" '{print $1'}`
- if [ ! -z "$bad_function" ]; then
-    echo "[ERROR!] There are found lines with system.exit. The function has dangerous behaviour for jenkins!"
-    echo "Please check that files:"
-    echo "$bad_function"
-    exit 1
- else
-    echo "[INFO!] There are no files with dangerous behaviour for jenkins. Continue..."
- fi
-
- if [ ! -d "reports" ]; then
-   mkdir reports
- else
-   rm -rf reports
-   mkdir reports   
- fi
-touch reports/list_of_unuq_multi_lines.txt reports/full_report.html
-
- /usr/local/bin/yamllint  -f parsable . | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | sed 's/^/<br> /' | sed 's/$/ <\\/br>/\' >> reports/full_report.html
-
- all_files=`find . -type f -name "*.yml"`
- for i in $all_files
- do
- short_path=`basename $i`
-    if [ "$short_path" == "envMapping.yml" ] || [ "$short_path" == "jobMapping.yml" ]; then
-       /usr/local/bin/yamllint -c ./.multi_yamllint -f parsable $i | sed 's/^/<br> /' | sed 's/$/ <\\/br>/\' >> reports/full_report.html
-       cat $i | awk -F ":" '{print $1'} | grep -v "\\---" | grep -v "#" | sort | uniq -u >> reports/list_of_unuq_multi_lines.txt
-    fi
- done
-  full_list_uniq_vars=`cat reports/list_of_unuq_multi_lines.txt | sort | uniq`
-  for t in $full_list_uniq_vars
-  do
-     if [ "$t" == "branch" ] || [ "$t" == "envSettings" ]; then
-       test=""
-     else
-        echo "[ERROR!] $t looks like mistype. Please check it below:"
-        grep -R $t | grep -v list_of_unuq_multi_lines.txt | awk -F ':' '{print $1,$2'}       
-     fi
- done
- error=`cat reports/list_of_unuq_multi_lines.txt | sort | uniq | grep -v branch | grep -v envSettings | sed \'/^\\s*$/d\'`
- echo $error
- if [ -n "$error" ]; then
-    echo "[ERROR!] There are found lines in report. Please check report!"
-    exit 1
- else
-   echo "[INFO!] All is ok. Continue..."
- fi
- '''
-        } catch (error) {
-            echo "Something wrong with yaml configuration!"
-            echo "\u001B[31m" + error.message + "\u001B[0m"
-            currentBuild.result = "FAILURE"
-
-        }
-    }
-
-
     stage('Deploy new resourses') {
         try {
             echo "[INFO!] Jenkins-ECS cluster and master branch are detected. Continue..."
