@@ -33,25 +33,12 @@ node('master') {
             echo "[INFO!] Jenkins-ECS cluster and master branch are detected. Continue..."
             echo "[INFO!] Copying files to $workflowLibsDir"
             sh "rsync -avz --delete . $workflowLibsDir"
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'full_report.html', reportName: 'Full HTML Report', reportTitles: ''])
-            sh '''#!/bin/bash
-set +x
-if [ -s reports/full_report.html ]
-then
-   echo "[ERROR!] You have wrong yaml files! Please check report"
-   exit 1             
-else
-    echo "[INFO!] You do not have wrong yaml files! All is OK. Continue..."
-fi
-'''
             currentBuild.result = "SUCCESS"
         } catch (error) {
             echo "Copy to $workflowLibsDir on Jenkins master failed!"
             echo "\u001B[31m" + error.message + "\u001B[0m"
             currentBuild.result = "FAILURE"
-
         }
-
     }
         stage('Archiving current resourses') {
             archiveArtifacts artifacts: '**/*.*', defaultExcludes: false, excludes: '.git', fingerprint: true
