@@ -7,7 +7,7 @@ def workflowLibsDirEcs = "/var/jenkins_home/workflow-libs/"
 def workflowLibsDir
 def map_vars
 
-node('master_jenkins_admin_use_only') {
+node('master') {
     stage('Checkout new resources') {
         try {
             map_vars = checkout scm
