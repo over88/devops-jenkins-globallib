@@ -52,14 +52,6 @@ fi
 
         }
 
-        jenkinsNotification {
-            recipients = 'fa.anatoly@gmail.com'
-            type = "deploy"
-            app_urls = "https://github.com/over88/jenkins-gloaballib.git"
-            app_name = "devops-jenkins-globallib"
-            env = "Production"
-            message = "Deploy files to $workflowLibsDir on Jenkins master - HOST: $jenkinsHost."
-        }
     }
         stage('Archiving current resourses') {
             archiveArtifacts artifacts: '**/*.*', defaultExcludes: false, excludes: '.git', fingerprint: true
