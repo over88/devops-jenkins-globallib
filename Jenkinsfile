@@ -18,7 +18,6 @@ node('master') {
             echo "My workflowLibsDir is: $workflowLibsDir"
 
             sh "rm -rf .git"
-            def config = readYaml file: './mailRecipient.yml'
             echo config.owner
 
         } catch (error) {
