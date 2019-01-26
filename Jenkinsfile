@@ -18,7 +18,6 @@ node('master') {
             echo "My workflowLibsDir is: $workflowLibsDir"
 
             sh "rm -rf .git"
-            echo config.owner
 
         } catch (error) {
             echo "Checkout scm on Jenkins master failed!"
